@@ -77,6 +77,27 @@ const TEAMS = [
 
 const GROUP_NAMES = ['A','B','C','D','E','F','G','H','I','J','K','L'];
 
+// Mapping from openfootball JSON team names to our team IDs
+const API_NAME_MAP = {
+  'Mexico': 17, 'South Africa': 38, 'South Korea': 33, 'Czech Republic': 30, 'Czechia': 30,
+  'Canada': 23, 'Switzerland': 16, 'Qatar': 39, 'Bosnia and Herzegovina': 27, 'Bosnia': 27,
+  'Brazil': 4, 'Morocco': 14, 'Haiti': 48, 'Scotland': 26,
+  'USA': 13, 'United States': 13, 'Paraguay': 25, 'Australia': 35, 'Turkey': 19, 'Türkiye': 19,
+  'Germany': 7, 'Curaçao': 45, 'Curacao': 45, 'Ivory Coast': 28, "Côte d'Ivoire": 28, 'Ecuador': 20,
+  'Netherlands': 8, 'Japan': 12, 'Sweden': 22, 'Tunisia': 34,
+  'Belgium': 10, 'Egypt': 29, 'Iran': 36, 'New Zealand': 42,
+  'Spain': 1, 'Cape Verde': 44, 'Cabo Verde': 44, 'Saudi Arabia': 40, 'Uruguay': 15,
+  'France': 2, 'Senegal': 21, 'Norway': 9, 'Iraq': 43,
+  'Argentina': 5, 'Algeria': 32, 'Austria': 24, 'Jordan': 47,
+  'Portugal': 6, 'Colombia': 11, 'Uzbekistan': 46, 'DR Congo': 37, 'Congo DR': 37, 'Congo': 37,
+  'England': 3, 'Croatia': 18, 'Ghana': 31, 'Panama': 41,
+  // Playoff placeholders
+  'UEFA Path D winner': 30, 'UEFA Path A winner': 27, 'UEFA Path C winner': 19,
+  'UEFA Path B winner': 22, 'IC Path 2 winner': 43, 'IC Path 1 winner': 37
+};
+
+const OPENFOOTBALL_URL = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
+
 // ========== STATE ==========
 let currentPlayer = null;
 let allSelections = [];
@@ -725,15 +746,15 @@ function renderRules() {
         <h3>🏆 PREMIOS</h3>
         <div class="premio premio-gold">
           <span class="premio-pos">1º</span>
-          <span class="premio-desc">El ganador se lleva la gloria eterna y el bote acumulado</span>
+          <span class="premio-desc">KEBAB GRATIS invitado por los perdedores + gloria eterna</span>
         </div>
         <div class="premio premio-silver">
           <span class="premio-pos">2º</span>
-          <span class="premio-desc">Recupera su inversion</span>
+          <span class="premio-desc">Palmadita en la espalda y el respeto del grupo</span>
         </div>
         <div class="premio premio-bronze">
           <span class="premio-pos">Ultimo</span>
-          <span class="premio-desc">Castigo a decidir por el grupo 😈</span>
+          <span class="premio-desc">Invita el kebab al ganador + castigo a decidir por el grupo 😈</span>
         </div>
       </div>
 
@@ -817,11 +838,15 @@ function renderAdmin() {
 
   let html = '<h2 class="section-title">Panel de Administracion</h2>';
 
-  // Generate group matches button
+  // Auto-sync + generate buttons
   html += `
     <div class="admin-section">
-      <h3>Generar Partidos</h3>
-      <button class="btn btn-primary" onclick="generateAllMatches()">Generar partidos de fase de grupos</button>
+      <h3>Partidos y Resultados</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="generateAllMatches()">Generar partidos de grupos</button>
+        <button class="btn btn-primary" onclick="syncResults()" style="background:var(--gold);color:#000;">Sincronizar resultados (API)</button>
+      </div>
+      <p class="rule-note" style="margin-top:8px;">La sincronizacion busca resultados en openfootball (se actualiza durante el torneo). Tambien puedes introducir resultados manualmente abajo.</p>
     </div>`;
 
   // Match result entry
@@ -1081,6 +1106,21 @@ async function toggleThirdQualified(teamId, groupName, checked) {
   renderAdmin();
 }
 
+async function syncResults() {
+  try {
+    const synced = await fetchAndSyncResults();
+    await Store.loadMatches();
+    if (synced > 0) {
+      alert(`${synced} resultado(s) sincronizado(s)`);
+    } else {
+      alert('No hay resultados nuevos disponibles');
+    }
+    renderAdmin();
+  } catch (e) {
+    alert('Error al sincronizar: ' + e.message);
+  }
+}
+
 async function saveTopScorer(teamId) {
   const finalMatch = allMatches.find(m => m.stage === 'final');
   if (finalMatch) {
@@ -1089,19 +1129,148 @@ async function saveTopScorer(teamId) {
   }
 }
 
+// ========== AUTO-FETCH RESULTS ==========
+function resolveTeamId(apiName) {
+  if (!apiName) return null;
+  // Direct match
+  if (API_NAME_MAP[apiName]) return API_NAME_MAP[apiName];
+  // Try case-insensitive
+  const lower = apiName.toLowerCase();
+  for (const [key, id] of Object.entries(API_NAME_MAP)) {
+    if (key.toLowerCase() === lower) return id;
+  }
+  return null;
+}
+
+function apiGroupToLetter(groupStr) {
+  // "Group A" -> "A"
+  return groupStr ? groupStr.replace('Group ', '') : null;
+}
+
+async function fetchAndSyncResults() {
+  try {
+    const resp = await fetch(OPENFOOTBALL_URL);
+    if (!resp.ok) throw new Error('Failed to fetch');
+    const data = await resp.json();
+
+    let synced = 0;
+    for (const m of data.matches) {
+      // Only process group stage matches with scores
+      if (!m.group || m.score1 === undefined || m.score1 === null) continue;
+
+      const homeId = resolveTeamId(m.team1);
+      const awayId = resolveTeamId(m.team2);
+      if (!homeId || !awayId) continue;
+
+      const groupLetter = apiGroupToLetter(m.group);
+      const matchId = `G-${groupLetter}-${homeId}-${awayId}`;
+
+      // Check if we already have this result
+      const existing = allMatches.find(
+        em => em.stage === 'group' && em.home_team_id === homeId && em.away_team_id === awayId
+      );
+
+      if (existing && existing.played) continue; // Already recorded
+
+      const matchObj = {
+        id: existing ? existing.id : matchId,
+        stage: 'group',
+        group_name: groupLetter,
+        home_team_id: homeId,
+        away_team_id: awayId,
+        home_score: m.score1,
+        away_score: m.score2,
+        result_type: 'regular',
+        played: true,
+        match_date: m.date
+      };
+
+      await Store.saveMatch(matchObj);
+      synced++;
+    }
+
+    // Also process knockout matches if they have scores
+    for (const m of data.matches) {
+      if (m.group) continue; // Skip group matches
+      if (m.score1 === undefined || m.score1 === null) continue;
+
+      const homeId = resolveTeamId(m.team1);
+      const awayId = resolveTeamId(m.team2);
+      if (!homeId || !awayId) continue;
+
+      let stage = 'round32';
+      if (m.round && m.round.includes('16')) stage = 'round16';
+      else if (m.round && m.round.includes('Quarter')) stage = 'quarter';
+      else if (m.round && m.round.includes('Semi')) stage = 'semi';
+      else if (m.round && m.round.includes('third')) stage = 'third_place';
+      else if (m.round && m.round.includes('Final') && !m.round.includes('Semi') && !m.round.includes('Quarter')) stage = 'final';
+
+      const matchId = `KO-${stage}-${homeId}-${awayId}`;
+      const existing = allMatches.find(
+        em => em.stage === stage && em.home_team_id === homeId && em.away_team_id === awayId
+      );
+      if (existing && existing.played) continue;
+
+      // Determine result type from penalties/extra time fields
+      let resultType = 'regular';
+      if (m.penalty1 !== undefined && m.penalty1 !== null) resultType = 'penalties';
+      else if (m.extra1 !== undefined && m.extra1 !== null) resultType = 'extra_time';
+
+      let penaltyWinner = null;
+      if (resultType === 'penalties' && m.penalty1 !== undefined) {
+        penaltyWinner = m.penalty1 > m.penalty2 ? homeId : awayId;
+      }
+
+      const matchObj = {
+        id: existing ? existing.id : matchId,
+        stage,
+        group_name: null,
+        home_team_id: homeId,
+        away_team_id: awayId,
+        home_score: m.score1,
+        away_score: m.score2,
+        result_type: resultType,
+        penalty_winner_id: penaltyWinner,
+        played: true,
+        match_date: m.date
+      };
+
+      await Store.saveMatch(matchObj);
+      synced++;
+    }
+
+    return synced;
+  } catch (e) {
+    console.warn('Auto-fetch failed:', e);
+    return 0;
+  }
+}
+
 // ========== INITIALIZATION ==========
 async function init() {
-  initSupabase();
-  await Store.loadSelections();
-  await Store.loadMatches();
-  await Store.loadQualifiedThirds();
+  try {
+    initSupabase();
+  } catch (e) {
+    console.warn('Supabase init failed, using localStorage:', e);
+  }
+
+  try {
+    await Store.loadSelections();
+    await Store.loadMatches();
+    await Store.loadQualifiedThirds();
+    // Auto-fetch results from openfootball
+    await fetchAndSyncResults();
+    await Store.loadMatches(); // Reload after sync
+  } catch (e) {
+    console.warn('Error loading data:', e);
+  }
 
   // Setup nav
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => showView(btn.dataset.view));
   });
 
-  $('login-form').addEventListener('submit', e => {
+  $('login-form').addEventListener('submit', async e => {
     e.preventDefault();
     const groupCode = $('input-group-code').value.trim();
     const playerCode = $('input-player-code').value.trim();
@@ -1111,6 +1280,12 @@ async function init() {
       $('login-error').style.display = 'block';
     } else {
       $('login-error').style.display = 'none';
+      // Reload data after login
+      try {
+        await Store.loadSelections();
+        await Store.loadMatches();
+        await Store.loadQualifiedThirds();
+      } catch (e) { console.warn(e); }
       showView('dashboard');
     }
   });
@@ -1120,9 +1295,11 @@ async function init() {
   // Auto-refresh data periodically
   setInterval(async () => {
     if (currentPlayer) {
-      await Store.loadSelections();
-      await Store.loadMatches();
-      await Store.loadQualifiedThirds();
+      try {
+        await Store.loadSelections();
+        await Store.loadMatches();
+        await Store.loadQualifiedThirds();
+      } catch (e) { console.warn(e); }
     }
   }, 30000);
 

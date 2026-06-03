@@ -114,18 +114,17 @@ body {
 .nav-btn:hover { color: var(--text); }
 
 /* ---- VIEWS ---- */
-.view { display: none; padding: 16px; }
-.view.active { display: block; }
+.view { display: none !important; padding: 16px; }
+.view.active { display: block !important; }
 
 /* ---- LOGIN ---- */
-#view-login {
-  display: flex;
+#view-login.active {
+  display: flex !important;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
 }
-#view-login.active { display: flex; }
 
 .login-card {
   background: var(--bg-card);
