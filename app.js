@@ -8,26 +8,27 @@ const CONFIG = {
   BUDGET: 30,
   MAX_OWNERS_PER_TEAM: 2,
   SUPABASE_URL: 'https://zzupgeibyysyjudyfgls.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6dXBnZWlieXlzeWp1ZHlmZ2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODk0NDksImV4cCI6MjA5NjA2NTQ0OX0.1O-SfxB5tS0CtcqMe4GRhuK5ZOa8YOGBTEmU9VSPXFM',
+  SUPABASE_ANON_KEY:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6dXBnZWlieXlzeWp1ZHlmZ2xzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0ODk0NDksImV4cCI6MjA5NjA2NTQ0OX0.1O-SfxB5tS0CtcqMe4GRhuK5ZOa8YOGBTEmU9VSPXFM',
   FOOTBALL_API_KEY: '', // Optional: football-data.org free API key
-  ADMIN_CODES: ['thetoxic'] // Players who can manage results
+  ADMIN_CODES: ['thetoxic'], // Players who can manage results
 };
 
 const PLAYERS = [
-  { code: 'songc', name: 'Sony', avatar: '🎮' },
+  { code: 'songc', name: 'Sony', avatar: '🌮' },
   { code: 'vitorrm', name: 'RMBitor', avatar: '⚡' },
   { code: 'cabeza950', name: 'Cabeza', avatar: '🧠' },
   { code: 'thetoxic', name: 'Magaldi', avatar: '☠️' },
   { code: 'princess', name: 'Joosk10', avatar: '👑' },
-  { code: 'Alavaro', name: 'Dwexe', avatar: '🎯' },
-  { code: 'Plano', name: 'Bighero', avatar: '🦸' },
-  { code: 'Despistao', name: 'DaniRojoMarlasca7217', avatar: '🔴' }
+  { code: 'Alavaro', name: 'Dwexe', avatar: '🦧' },
+  { code: 'Plano', name: 'Bighero', avatar: '🏋🏼' },
+  { code: 'Despistao', name: 'DaniRojoMarlasca7217', avatar: '🔴' },
 ];
 
 const TEAMS = [
   { id: 1, name: 'España', flag: '🇪🇸', cost: 29, group: 'H' },
   { id: 2, name: 'Francia', flag: '🇫🇷', cost: 27, group: 'I' },
-  { id: 3, name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', cost: 26, group: 'L' },
+  { id: 3, name: 'Inglaterra', flag: '🇬🇧', cost: 26, group: 'L' },
   { id: 4, name: 'Brasil', flag: '🇧🇷', cost: 24, group: 'C' },
   { id: 5, name: 'Argentina', flag: '🇦🇷', cost: 24, group: 'J' },
   { id: 6, name: 'Portugal', flag: '🇵🇹', cost: 20, group: 'K' },
@@ -72,31 +73,94 @@ const TEAMS = [
   { id: 45, name: 'Curazao', flag: '🇨🇼', cost: 2, group: 'E' },
   { id: 46, name: 'Uzbekistán', flag: '🇺🇿', cost: 2, group: 'K' },
   { id: 47, name: 'Jordania', flag: '🇯🇴', cost: 1, group: 'J' },
-  { id: 48, name: 'Haití', flag: '🇭🇹', cost: 0, group: 'C' }
+  { id: 48, name: 'Haití', flag: '🇭🇹', cost: 0, group: 'C' },
 ];
 
-const GROUP_NAMES = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+const GROUP_NAMES = [
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+];
 
 // Mapping from openfootball JSON team names to our team IDs
 const API_NAME_MAP = {
-  'Mexico': 17, 'South Africa': 38, 'South Korea': 33, 'Czech Republic': 30, 'Czechia': 30,
-  'Canada': 23, 'Switzerland': 16, 'Qatar': 39, 'Bosnia and Herzegovina': 27, 'Bosnia': 27,
-  'Brazil': 4, 'Morocco': 14, 'Haiti': 48, 'Scotland': 26,
-  'USA': 13, 'United States': 13, 'Paraguay': 25, 'Australia': 35, 'Turkey': 19, 'Türkiye': 19,
-  'Germany': 7, 'Curaçao': 45, 'Curacao': 45, 'Ivory Coast': 28, "Côte d'Ivoire": 28, 'Ecuador': 20,
-  'Netherlands': 8, 'Japan': 12, 'Sweden': 22, 'Tunisia': 34,
-  'Belgium': 10, 'Egypt': 29, 'Iran': 36, 'New Zealand': 42,
-  'Spain': 1, 'Cape Verde': 44, 'Cabo Verde': 44, 'Saudi Arabia': 40, 'Uruguay': 15,
-  'France': 2, 'Senegal': 21, 'Norway': 9, 'Iraq': 43,
-  'Argentina': 5, 'Algeria': 32, 'Austria': 24, 'Jordan': 47,
-  'Portugal': 6, 'Colombia': 11, 'Uzbekistan': 46, 'DR Congo': 37, 'Congo DR': 37, 'Congo': 37,
-  'England': 3, 'Croatia': 18, 'Ghana': 31, 'Panama': 41,
+  Mexico: 17,
+  'South Africa': 38,
+  'South Korea': 33,
+  'Czech Republic': 30,
+  Czechia: 30,
+  Canada: 23,
+  Switzerland: 16,
+  Qatar: 39,
+  'Bosnia and Herzegovina': 27,
+  Bosnia: 27,
+  Brazil: 4,
+  Morocco: 14,
+  Haiti: 48,
+  Scotland: 26,
+  USA: 13,
+  'United States': 13,
+  Paraguay: 25,
+  Australia: 35,
+  Turkey: 19,
+  Türkiye: 19,
+  Germany: 7,
+  Curaçao: 45,
+  Curacao: 45,
+  'Ivory Coast': 28,
+  "Côte d'Ivoire": 28,
+  Ecuador: 20,
+  Netherlands: 8,
+  Japan: 12,
+  Sweden: 22,
+  Tunisia: 34,
+  Belgium: 10,
+  Egypt: 29,
+  Iran: 36,
+  'New Zealand': 42,
+  Spain: 1,
+  'Cape Verde': 44,
+  'Cabo Verde': 44,
+  'Saudi Arabia': 40,
+  Uruguay: 15,
+  France: 2,
+  Senegal: 21,
+  Norway: 9,
+  Iraq: 43,
+  Argentina: 5,
+  Algeria: 32,
+  Austria: 24,
+  Jordan: 47,
+  Portugal: 6,
+  Colombia: 11,
+  Uzbekistan: 46,
+  'DR Congo': 37,
+  'Congo DR': 37,
+  Congo: 37,
+  England: 3,
+  Croatia: 18,
+  Ghana: 31,
+  Panama: 41,
   // Playoff placeholders
-  'UEFA Path D winner': 30, 'UEFA Path A winner': 27, 'UEFA Path C winner': 19,
-  'UEFA Path B winner': 22, 'IC Path 2 winner': 43, 'IC Path 1 winner': 37
+  'UEFA Path D winner': 30,
+  'UEFA Path A winner': 27,
+  'UEFA Path C winner': 19,
+  'UEFA Path B winner': 22,
+  'IC Path 2 winner': 43,
+  'IC Path 1 winner': 37,
 };
 
-const OPENFOOTBALL_URL = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
+const OPENFOOTBALL_URL =
+  'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
 
 // ========== STATE ==========
 let currentPlayer = null;
@@ -126,13 +190,19 @@ const Store = {
         .eq('group_code', CONFIG.GROUP_CODE);
       allSelections = data || [];
     } else {
-      allSelections = JSON.parse(localStorage.getItem('porra_selections') || '[]');
+      allSelections = JSON.parse(
+        localStorage.getItem('porra_selections') || '[]',
+      );
     }
     return allSelections;
   },
 
   async selectTeam(playerCode, teamId) {
-    const entry = { group_code: CONFIG.GROUP_CODE, player_code: playerCode, team_id: teamId };
+    const entry = {
+      group_code: CONFIG.GROUP_CODE,
+      player_code: playerCode,
+      team_id: teamId,
+    };
     if (sbClient) {
       const { error } = await sbClient.from('team_selections').insert(entry);
       if (error) throw error;
@@ -153,7 +223,7 @@ const Store = {
         .eq('team_id', teamId);
     } else {
       allSelections = allSelections.filter(
-        s => !(s.player_code === playerCode && s.team_id === teamId)
+        (s) => !(s.player_code === playerCode && s.team_id === teamId),
       );
       localStorage.setItem('porra_selections', JSON.stringify(allSelections));
     }
@@ -178,10 +248,14 @@ const Store = {
     if (sbClient) {
       const { error } = await sbClient
         .from('match_results')
-        .upsert({ ...match, group_code: CONFIG.GROUP_CODE, updated_at: new Date().toISOString() });
+        .upsert({
+          ...match,
+          group_code: CONFIG.GROUP_CODE,
+          updated_at: new Date().toISOString(),
+        });
       if (error) throw error;
     } else {
-      const idx = allMatches.findIndex(m => m.id === match.id);
+      const idx = allMatches.findIndex((m) => m.id === match.id);
       if (idx >= 0) allMatches[idx] = { ...allMatches[idx], ...match };
       else allMatches.push(match);
       localStorage.setItem('porra_matches', JSON.stringify(allMatches));
@@ -197,33 +271,48 @@ const Store = {
         .eq('group_code', CONFIG.GROUP_CODE);
       qualifiedThirds = data || [];
     } else {
-      qualifiedThirds = JSON.parse(localStorage.getItem('porra_thirds') || '[]');
+      qualifiedThirds = JSON.parse(
+        localStorage.getItem('porra_thirds') || '[]',
+      );
     }
     return qualifiedThirds;
   },
 
   async saveQualifiedThirds(thirds) {
     if (sbClient) {
-      await sbClient.from('qualified_thirds').delete().eq('group_code', CONFIG.GROUP_CODE);
+      await sbClient
+        .from('qualified_thirds')
+        .delete()
+        .eq('group_code', CONFIG.GROUP_CODE);
       if (thirds.length > 0) {
-        await sbClient.from('qualified_thirds').insert(
-          thirds.map(t => ({ group_code: CONFIG.GROUP_CODE, team_id: t.team_id, group_name: t.group_name }))
-        );
+        await sbClient
+          .from('qualified_thirds')
+          .insert(
+            thirds.map((t) => ({
+              group_code: CONFIG.GROUP_CODE,
+              team_id: t.team_id,
+              group_name: t.group_name,
+            })),
+          );
       }
     } else {
       localStorage.setItem('porra_thirds', JSON.stringify(thirds));
     }
     qualifiedThirds = thirds;
-  }
+  },
 };
 
 // ========== AUTH ==========
 function login(groupCode, playerCode) {
-  if (groupCode !== CONFIG.GROUP_CODE) return { error: 'Código de grupo incorrecto' };
-  const player = PLAYERS.find(p => p.code === playerCode);
+  if (groupCode !== CONFIG.GROUP_CODE)
+    return { error: 'Código de grupo incorrecto' };
+  const player = PLAYERS.find((p) => p.code === playerCode);
   if (!player) return { error: 'Código de jugador no válido' };
   currentPlayer = player;
-  localStorage.setItem('porra_session', JSON.stringify({ groupCode, playerCode }));
+  localStorage.setItem(
+    'porra_session',
+    JSON.stringify({ groupCode, playerCode }),
+  );
   return { success: true };
 }
 
@@ -236,7 +325,7 @@ function logout() {
 function restoreSession() {
   const session = JSON.parse(localStorage.getItem('porra_session') || 'null');
   if (session) {
-    const player = PLAYERS.find(p => p.code === session.playerCode);
+    const player = PLAYERS.find((p) => p.code === session.playerCode);
     if (player && session.groupCode === CONFIG.GROUP_CODE) {
       currentPlayer = player;
       return true;
@@ -251,38 +340,55 @@ function isAdmin() {
 
 // ========== POINTS ENGINE ==========
 function getGroupTeams(groupName) {
-  return TEAMS.filter(t => t.group === groupName);
+  return TEAMS.filter((t) => t.group === groupName);
 }
 
 function getGroupMatches(groupName) {
-  return allMatches.filter(m => m.stage === 'group' && m.group_name === groupName && m.played);
+  return allMatches.filter(
+    (m) => m.stage === 'group' && m.group_name === groupName && m.played,
+  );
 }
 
 function calculateGroupStandings(groupName) {
   const teams = getGroupTeams(groupName);
   const matches = getGroupMatches(groupName);
 
-  const standings = teams.map(team => {
-    let pts = 0, gf = 0, ga = 0, w = 0, d = 0, l = 0, played = 0;
+  const standings = teams.map((team) => {
+    let pts = 0,
+      gf = 0,
+      ga = 0,
+      w = 0,
+      d = 0,
+      l = 0,
+      played = 0;
     for (const m of matches) {
       let goalsFor, goalsAgainst;
       if (m.home_team_id === team.id) {
-        goalsFor = m.home_score; goalsAgainst = m.away_score;
+        goalsFor = m.home_score;
+        goalsAgainst = m.away_score;
       } else if (m.away_team_id === team.id) {
-        goalsFor = m.away_score; goalsAgainst = m.home_score;
+        goalsFor = m.away_score;
+        goalsAgainst = m.home_score;
       } else continue;
 
       played++;
-      gf += goalsFor; ga += goalsAgainst;
-      if (goalsFor > goalsAgainst) { w++; pts += 3; }
-      else if (goalsFor === goalsAgainst) { d++; pts += 1; }
-      else { l++; }
+      gf += goalsFor;
+      ga += goalsAgainst;
+      if (goalsFor > goalsAgainst) {
+        w++;
+        pts += 3;
+      } else if (goalsFor === goalsAgainst) {
+        d++;
+        pts += 1;
+      } else {
+        l++;
+      }
     }
     return { team, pts, gf, ga, gd: gf - ga, w, d, l, played };
   });
 
   standings.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
-  standings.forEach((s, i) => s.position = i + 1);
+  standings.forEach((s, i) => (s.position = i + 1));
   return standings;
 }
 
@@ -295,18 +401,21 @@ function getAllGroupStandings() {
 }
 
 function isThirdQualified(teamId) {
-  return qualifiedThirds.some(t => t.team_id === teamId);
+  return qualifiedThirds.some((t) => t.team_id === teamId);
 }
 
 function calculateTeamGamePoints(teamId) {
   let points = 0;
   const allStandings = getAllGroupStandings();
-  const team = TEAMS.find(t => t.id === teamId);
+  const team = TEAMS.find((t) => t.id === teamId);
   if (!team) return 0;
 
   // === GROUP STAGE ===
   const groupMatches = allMatches.filter(
-    m => m.stage === 'group' && m.played && (m.home_team_id === teamId || m.away_team_id === teamId)
+    (m) =>
+      m.stage === 'group' &&
+      m.played &&
+      (m.home_team_id === teamId || m.away_team_id === teamId),
   );
 
   for (const m of groupMatches) {
@@ -324,7 +433,7 @@ function calculateTeamGamePoints(teamId) {
   }
 
   // Group position bonus
-  const standing = allStandings[team.group]?.find(s => s.team.id === teamId);
+  const standing = allStandings[team.group]?.find((s) => s.team.id === teamId);
   if (standing && standing.played > 0) {
     if (standing.position === 1) points += 3;
     else if (standing.position === 2) points += 2;
@@ -336,8 +445,11 @@ function calculateTeamGamePoints(teamId) {
 
   // === KNOCKOUT STAGE ===
   const knockoutMatches = allMatches.filter(
-    m => m.stage !== 'group' && m.stage !== 'third_place' && m.played &&
-    (m.home_team_id === teamId || m.away_team_id === teamId)
+    (m) =>
+      m.stage !== 'group' &&
+      m.stage !== 'third_place' &&
+      m.played &&
+      (m.home_team_id === teamId || m.away_team_id === teamId),
   );
 
   for (const m of knockoutMatches) {
@@ -381,8 +493,10 @@ function calculateTeamGamePoints(teamId) {
 
   // === 3RD PLACE MATCH ===
   const thirdMatch = allMatches.find(
-    m => m.stage === 'third_place' && m.played &&
-    (m.home_team_id === teamId || m.away_team_id === teamId)
+    (m) =>
+      m.stage === 'third_place' &&
+      m.played &&
+      (m.home_team_id === teamId || m.away_team_id === teamId),
   );
   if (thirdMatch) {
     let isWinner;
@@ -398,7 +512,7 @@ function calculateTeamGamePoints(teamId) {
   }
 
   // === TOP SCORER BONUS ===
-  const finalMatch = allMatches.find(m => m.stage === 'final' && m.played);
+  const finalMatch = allMatches.find((m) => m.stage === 'final' && m.played);
   if (finalMatch && finalMatch.top_scorer_team_id === teamId) {
     points += 2;
   }
@@ -408,8 +522,10 @@ function calculateTeamGamePoints(teamId) {
 
 function getPlayerTeams(playerCode) {
   return allSelections
-    .filter(s => s.player_code === playerCode && s.group_code === CONFIG.GROUP_CODE)
-    .map(s => TEAMS.find(t => t.id === s.team_id))
+    .filter(
+      (s) => s.player_code === playerCode && s.group_code === CONFIG.GROUP_CODE,
+    )
+    .map((s) => TEAMS.find((t) => t.id === s.team_id))
     .filter(Boolean);
 }
 
@@ -424,13 +540,15 @@ function getPlayerTotalPoints(playerCode) {
 
 function getTeamOwners(teamId) {
   return allSelections
-    .filter(s => s.team_id === teamId && s.group_code === CONFIG.GROUP_CODE)
-    .map(s => PLAYERS.find(p => p.code === s.player_code))
+    .filter((s) => s.team_id === teamId && s.group_code === CONFIG.GROUP_CODE)
+    .map((s) => PLAYERS.find((p) => p.code === s.player_code))
     .filter(Boolean);
 }
 
 function getTeamOwnerCount(teamId) {
-  return allSelections.filter(s => s.team_id === teamId && s.group_code === CONFIG.GROUP_CODE).length;
+  return allSelections.filter(
+    (s) => s.team_id === teamId && s.group_code === CONFIG.GROUP_CODE,
+  ).length;
 }
 
 // ========== GROUP MATCH GENERATION ==========
@@ -453,7 +571,7 @@ function generateGroupMatches(groupName) {
     home_score: null,
     away_score: null,
     result_type: 'regular',
-    played: false
+    played: false,
   }));
 }
 
@@ -466,14 +584,18 @@ function getAllGroupMatchTemplates() {
 }
 
 // ========== UI RENDERING ==========
-const $ = id => document.getElementById(id);
+const $ = (id) => document.getElementById(id);
 
 function showView(viewName) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document
+    .querySelectorAll('.view')
+    .forEach((v) => v.classList.remove('active'));
   const view = $(`view-${viewName}`);
   if (view) view.classList.add('active');
 
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document
+    .querySelectorAll('.nav-btn')
+    .forEach((b) => b.classList.remove('active'));
   const navBtn = document.querySelector(`.nav-btn[data-view="${viewName}"]`);
   if (navBtn) navBtn.classList.add('active');
 
@@ -487,17 +609,29 @@ function showView(viewName) {
 
   // Render view content
   switch (viewName) {
-    case 'dashboard': renderDashboard(); break;
-    case 'teams': renderTeamSelection(); break;
-    case 'matches': renderMatches(); break;
-    case 'rules': renderRules(); break;
-    case 'admin': renderAdmin(); break;
+    case 'dashboard':
+      renderDashboard();
+      break;
+    case 'teams':
+      renderTeamSelection();
+      break;
+    case 'matches':
+      renderMatches();
+      break;
+    case 'rules':
+      renderRules();
+      break;
+    case 'admin':
+      renderAdmin();
+      break;
   }
 }
 
 function renderHeader() {
-  $('header-player-name').textContent = `${currentPlayer.avatar} ${currentPlayer.name}`;
-  $('header-budget').textContent = `${CONFIG.BUDGET - getPlayerSpent(currentPlayer.code)} pts`;
+  $('header-player-name').textContent =
+    `${currentPlayer.avatar} ${currentPlayer.name}`;
+  $('header-budget').textContent =
+    `${CONFIG.BUDGET - getPlayerSpent(currentPlayer.code)} pts`;
 }
 
 // ---- DASHBOARD ----
@@ -505,24 +639,25 @@ function renderDashboard() {
   renderHeader();
   const container = $('dashboard-content');
 
-  const leaderboard = PLAYERS.map(p => ({
+  const leaderboard = PLAYERS.map((p) => ({
     player: p,
     points: getPlayerTotalPoints(p.code),
     teams: getPlayerTeams(p.code),
-    spent: getPlayerSpent(p.code)
+    spent: getPlayerSpent(p.code),
   })).sort((a, b) => b.points - a.points);
 
   let html = '<h2 class="section-title">Clasificacion</h2>';
   html += '<div class="leaderboard">';
   leaderboard.forEach((entry, idx) => {
-    const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`;
+    const medal =
+      idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`;
     const isMe = entry.player.code === currentPlayer.code;
     html += `
       <div class="leaderboard-row ${isMe ? 'is-me' : ''}">
         <div class="lb-rank">${medal}</div>
         <div class="lb-info">
           <div class="lb-name">${entry.player.avatar} ${entry.player.name}</div>
-          <div class="lb-teams">${entry.teams.map(t => t.flag).join(' ') || '<span class="muted">Sin equipos</span>'}</div>
+          <div class="lb-teams">${entry.teams.map((t) => t.flag).join(' ') || '<span class="muted">Sin equipos</span>'}</div>
         </div>
         <div class="lb-points">${entry.points} <small>pts</small></div>
       </div>`;
@@ -561,7 +696,7 @@ function renderDashboard() {
         <span class="gr-team">${s.team.flag} ${s.team.name}</span>
         <span class="gr-record">${s.played > 0 ? `${s.w}V ${s.d}E ${s.l}D` : '-'}</span>
         <span class="gr-pts">${s.pts}</span>
-        <span class="gr-owners">${owned.map(o => o.avatar).join('')}</span>
+        <span class="gr-owners">${owned.map((o) => o.avatar).join('')}</span>
       </div>`;
     }
     html += '</div></div>';
@@ -577,7 +712,7 @@ function renderTeamSelection() {
   const container = $('teams-content');
   const spent = getPlayerSpent(currentPlayer.code);
   const remaining = CONFIG.BUDGET - spent;
-  const myTeamIds = getPlayerTeams(currentPlayer.code).map(t => t.id);
+  const myTeamIds = getPlayerTeams(currentPlayer.code).map((t) => t.id);
 
   let html = `
     <div class="budget-bar">
@@ -589,7 +724,7 @@ function renderTeamSelection() {
     <div class="filter-bar">
       <select id="filter-group" onchange="renderTeamSelection()">
         <option value="">Todos los grupos</option>
-        ${GROUP_NAMES.map(g => `<option value="${g}">Grupo ${g}</option>`).join('')}
+        ${GROUP_NAMES.map((g) => `<option value="${g}">Grupo ${g}</option>`).join('')}
       </select>
       <select id="filter-sort" onchange="renderTeamSelection()">
         <option value="cost-desc">Precio: mayor a menor</option>
@@ -602,11 +737,16 @@ function renderTeamSelection() {
   const filterSort = $('filter-sort')?.value || 'cost-desc';
 
   let filteredTeams = [...TEAMS];
-  if (filterGroup) filteredTeams = filteredTeams.filter(t => t.group === filterGroup);
+  if (filterGroup)
+    filteredTeams = filteredTeams.filter((t) => t.group === filterGroup);
 
   if (filterSort === 'cost-desc') filteredTeams.sort((a, b) => b.cost - a.cost);
-  else if (filterSort === 'cost-asc') filteredTeams.sort((a, b) => a.cost - b.cost);
-  else filteredTeams.sort((a, b) => a.group.localeCompare(b.group) || b.cost - a.cost);
+  else if (filterSort === 'cost-asc')
+    filteredTeams.sort((a, b) => a.cost - b.cost);
+  else
+    filteredTeams.sort(
+      (a, b) => a.group.localeCompare(b.group) || b.cost - a.cost,
+    );
 
   html += '<div class="teams-list">';
   for (const team of filteredTeams) {
@@ -625,7 +765,7 @@ function renderTeamSelection() {
         <div class="tc-info">
           <div class="tc-name">${team.name}</div>
           <div class="tc-group">Grupo ${team.group}</div>
-          <div class="tc-owners">${owners.map(o => `<span class="owner-tag">${o.avatar} ${o.name}</span>`).join('') || `<span class="muted">${ownerCount}/${CONFIG.MAX_OWNERS_PER_TEAM} elegido</span>`}</div>
+          <div class="tc-owners">${owners.map((o) => `<span class="owner-tag">${o.avatar} ${o.name}</span>`).join('') || `<span class="muted">${ownerCount}/${CONFIG.MAX_OWNERS_PER_TEAM} elegido</span>`}</div>
         </div>
         <div class="tc-right">
           <div class="tc-cost">${team.cost} <small>pts</small></div>
@@ -645,16 +785,17 @@ function renderTeamSelection() {
 
 async function toggleTeam(teamId) {
   if (!currentPlayer) return;
-  const myTeamIds = getPlayerTeams(currentPlayer.code).map(t => t.id);
+  const myTeamIds = getPlayerTeams(currentPlayer.code).map((t) => t.id);
 
   try {
     if (myTeamIds.includes(teamId)) {
       await Store.deselectTeam(currentPlayer.code, teamId);
     } else {
-      const team = TEAMS.find(t => t.id === teamId);
+      const team = TEAMS.find((t) => t.id === teamId);
       const remaining = CONFIG.BUDGET - getPlayerSpent(currentPlayer.code);
       if (team.cost > remaining) return alert('No tienes suficientes puntos');
-      if (getTeamOwnerCount(teamId) >= CONFIG.MAX_OWNERS_PER_TEAM) return alert('Este equipo ya tiene el maximo de propietarios');
+      if (getTeamOwnerCount(teamId) >= CONFIG.MAX_OWNERS_PER_TEAM)
+        return alert('Este equipo ya tiene el maximo de propietarios');
       await Store.selectTeam(currentPlayer.code, teamId);
     }
     renderTeamSelection();
@@ -672,13 +813,15 @@ function renderMatches() {
   // Group stage
   html += '<h2 class="section-title">Fase de Grupos</h2>';
   for (const g of GROUP_NAMES) {
-    const matches = allMatches.filter(m => m.stage === 'group' && m.group_name === g);
+    const matches = allMatches.filter(
+      (m) => m.stage === 'group' && m.group_name === g,
+    );
     if (matches.length === 0) continue;
 
     html += `<div class="match-group-header">Grupo ${g}</div>`;
     for (const m of matches) {
-      const home = TEAMS.find(t => t.id === m.home_team_id);
-      const away = TEAMS.find(t => t.id === m.away_team_id);
+      const home = TEAMS.find((t) => t.id === m.home_team_id);
+      const away = TEAMS.find((t) => t.id === m.away_team_id);
       if (!home || !away) continue;
 
       html += `
@@ -697,22 +840,24 @@ function renderMatches() {
     { key: 'quarter', label: 'Cuartos de Final' },
     { key: 'semi', label: 'Semifinales' },
     { key: 'third_place', label: 'Tercer y Cuarto Puesto' },
-    { key: 'final', label: 'FINAL' }
+    { key: 'final', label: 'FINAL' },
   ];
 
   for (const stage of knockoutStages) {
-    const matches = allMatches.filter(m => m.stage === stage.key);
+    const matches = allMatches.filter((m) => m.stage === stage.key);
     if (matches.length === 0) continue;
 
     html += `<h2 class="section-title">${stage.label}</h2>`;
     for (const m of matches) {
-      const home = TEAMS.find(t => t.id === m.home_team_id);
-      const away = TEAMS.find(t => t.id === m.away_team_id);
+      const home = TEAMS.find((t) => t.id === m.home_team_id);
+      const away = TEAMS.find((t) => t.id === m.away_team_id);
       if (!home || !away) continue;
 
       let extra = '';
-      if (m.played && m.result_type === 'extra_time') extra = '<span class="match-extra">(Prorroga)</span>';
-      if (m.played && m.result_type === 'penalties') extra = '<span class="match-extra">(Penaltis)</span>';
+      if (m.played && m.result_type === 'extra_time')
+        extra = '<span class="match-extra">(Prorroga)</span>';
+      if (m.played && m.result_type === 'penalties')
+        extra = '<span class="match-extra">(Penaltis)</span>';
 
       html += `
         <div class="match-row ${m.played ? 'played' : 'upcoming'} ${stage.key === 'final' ? 'final-match' : ''}">
@@ -724,7 +869,8 @@ function renderMatches() {
   }
 
   if (allMatches.length === 0) {
-    html += '<div class="empty-state">Aun no hay partidos registrados. El admin debe crearlos desde el panel de administracion.</div>';
+    html +=
+      '<div class="empty-state">Aun no hay partidos registrados. El admin debe crearlos desde el panel de administracion.</div>';
   }
 
   container.innerHTML = html;
@@ -814,9 +960,13 @@ function renderRules() {
       <div class="pergamino-section">
         <h3>💰 VALOR DE LOS EQUIPOS</h3>
         <div class="teams-value-grid">
-          ${[...TEAMS].sort((a, b) => b.cost - a.cost).map((t, i) =>
-            `<div class="tv-row"><span class="tv-rank">${i + 1}</span><span class="tv-team">${t.flag} ${t.name}</span><span class="tv-cost">${t.cost}</span></div>`
-          ).join('')}
+          ${[...TEAMS]
+            .sort((a, b) => b.cost - a.cost)
+            .map(
+              (t, i) =>
+                `<div class="tv-row"><span class="tv-rank">${i + 1}</span><span class="tv-team">${t.flag} ${t.name}</span><span class="tv-cost">${t.cost}</span></div>`,
+            )
+            .join('')}
         </div>
       </div>
 
@@ -832,7 +982,8 @@ function renderAdmin() {
   const container = $('admin-content');
 
   if (!isAdmin()) {
-    container.innerHTML = '<div class="empty-state">Solo los administradores pueden acceder a esta seccion.</div>';
+    container.innerHTML =
+      '<div class="empty-state">Solo los administradores pueden acceder a esta seccion.</div>';
     return;
   }
 
@@ -858,12 +1009,14 @@ function renderAdmin() {
 
   // Group matches
   for (const g of GROUP_NAMES) {
-    const matches = allMatches.filter(m => m.stage === 'group' && m.group_name === g);
+    const matches = allMatches.filter(
+      (m) => m.stage === 'group' && m.group_name === g,
+    );
     if (matches.length > 0) {
       html += `<optgroup label="Grupo ${g}">`;
       for (const m of matches) {
-        const home = TEAMS.find(t => t.id === m.home_team_id);
-        const away = TEAMS.find(t => t.id === m.away_team_id);
+        const home = TEAMS.find((t) => t.id === m.home_team_id);
+        const away = TEAMS.find((t) => t.id === m.away_team_id);
         if (!home || !away) continue;
         const played = m.played ? ' ✓' : '';
         html += `<option value="${m.id}">${home.name} vs ${away.name}${played}</option>`;
@@ -874,16 +1027,20 @@ function renderAdmin() {
 
   // Knockout matches
   const knockoutLabels = {
-    round32: 'Dieciseisavos', round16: 'Octavos', quarter: 'Cuartos',
-    semi: 'Semis', third_place: '3er puesto', final: 'Final'
+    round32: 'Dieciseisavos',
+    round16: 'Octavos',
+    quarter: 'Cuartos',
+    semi: 'Semis',
+    third_place: '3er puesto',
+    final: 'Final',
   };
   for (const [stage, label] of Object.entries(knockoutLabels)) {
-    const matches = allMatches.filter(m => m.stage === stage);
+    const matches = allMatches.filter((m) => m.stage === stage);
     if (matches.length > 0) {
       html += `<optgroup label="${label}">`;
       for (const m of matches) {
-        const home = TEAMS.find(t => t.id === m.home_team_id);
-        const away = TEAMS.find(t => t.id === m.away_team_id);
+        const home = TEAMS.find((t) => t.id === m.home_team_id);
+        const away = TEAMS.find((t) => t.id === m.away_team_id);
         if (!home || !away) continue;
         const played = m.played ? ' ✓' : '';
         html += `<option value="${m.id}">${home.name} vs ${away.name}${played}</option>`;
@@ -939,13 +1096,13 @@ function renderAdmin() {
         <div class="admin-field">
           <label>Local</label>
           <select id="admin-ko-home">
-            ${TEAMS.map(t => `<option value="${t.id}">${t.flag} ${t.name}</option>`).join('')}
+            ${TEAMS.map((t) => `<option value="${t.id}">${t.flag} ${t.name}</option>`).join('')}
           </select>
         </div>
         <div class="admin-field">
           <label>Visitante</label>
           <select id="admin-ko-away">
-            ${TEAMS.map(t => `<option value="${t.id}">${t.flag} ${t.name}</option>`).join('')}
+            ${TEAMS.map((t) => `<option value="${t.id}">${t.flag} ${t.name}</option>`).join('')}
           </select>
         </div>
       </div>
@@ -960,7 +1117,7 @@ function renderAdmin() {
       <div class="thirds-grid">`;
   for (const g of GROUP_NAMES) {
     const standings = calculateGroupStandings(g);
-    const third = standings.find(s => s.position === 3);
+    const third = standings.find((s) => s.position === 3);
     if (!third) continue;
     const isQualified = isThirdQualified(third.team.id);
     html += `
@@ -978,9 +1135,10 @@ function renderAdmin() {
       <p class="rule-note">Selecciona el equipo del maximo goleador cuando termine el torneo.</p>
       <select id="admin-top-scorer" onchange="saveTopScorer(this.value)">
         <option value="">-- Sin definir --</option>
-        ${[...TEAMS].sort((a, b) => a.name.localeCompare(b.name)).map(t =>
-          `<option value="${t.id}">${t.flag} ${t.name}</option>`
-        ).join('')}
+        ${[...TEAMS]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((t) => `<option value="${t.id}">${t.flag} ${t.name}</option>`)
+          .join('')}
       </select>
     </div>`;
 
@@ -990,13 +1148,16 @@ function renderAdmin() {
 function onAdminMatchSelect() {
   const matchId = $('admin-match-select').value;
   const form = $('admin-match-form');
-  if (!matchId) { form.style.display = 'none'; return; }
+  if (!matchId) {
+    form.style.display = 'none';
+    return;
+  }
 
-  const match = allMatches.find(m => m.id === matchId);
+  const match = allMatches.find((m) => m.id === matchId);
   if (!match) return;
 
-  const home = TEAMS.find(t => t.id === match.home_team_id);
-  const away = TEAMS.find(t => t.id === match.away_team_id);
+  const home = TEAMS.find((t) => t.id === match.home_team_id);
+  const away = TEAMS.find((t) => t.id === match.away_team_id);
 
   $('admin-home-label').textContent = `${home.flag} ${home.name}`;
   $('admin-away-label').textContent = `${away.flag} ${away.name}`;
@@ -1011,9 +1172,11 @@ function onAdminMatchSelect() {
   if (match.penalty_winner_id) penaltySelect.value = match.penalty_winner_id;
 
   $('admin-result-type').onchange = () => {
-    $('admin-penalty-field').style.display = $('admin-result-type').value === 'penalties' ? 'block' : 'none';
+    $('admin-penalty-field').style.display =
+      $('admin-result-type').value === 'penalties' ? 'block' : 'none';
   };
-  $('admin-penalty-field').style.display = match.result_type === 'penalties' ? 'block' : 'none';
+  $('admin-penalty-field').style.display =
+    match.result_type === 'penalties' ? 'block' : 'none';
 
   form.style.display = 'block';
 }
@@ -1022,15 +1185,17 @@ async function saveMatchResult() {
   const matchId = $('admin-match-select').value;
   if (!matchId) return;
 
-  const match = allMatches.find(m => m.id === matchId);
+  const match = allMatches.find((m) => m.id === matchId);
   const updated = {
     ...match,
     home_score: parseInt($('admin-home-score').value),
     away_score: parseInt($('admin-away-score').value),
     result_type: $('admin-result-type').value,
-    penalty_winner_id: $('admin-result-type').value === 'penalties'
-      ? parseInt($('admin-penalty-winner').value) : null,
-    played: true
+    penalty_winner_id:
+      $('admin-result-type').value === 'penalties'
+        ? parseInt($('admin-penalty-winner').value)
+        : null,
+    played: true,
   };
 
   try {
@@ -1044,9 +1209,14 @@ async function saveMatchResult() {
 
 async function generateAllMatches() {
   const templates = getAllGroupMatchTemplates();
-  const existing = allMatches.filter(m => m.stage === 'group');
+  const existing = allMatches.filter((m) => m.stage === 'group');
   if (existing.length > 0) {
-    if (!confirm('Ya existen partidos de grupo. ¿Regenerar? (Se perderan resultados)')) return;
+    if (
+      !confirm(
+        'Ya existen partidos de grupo. ¿Regenerar? (Se perderan resultados)',
+      )
+    )
+      return;
   }
 
   try {
@@ -1067,7 +1237,7 @@ async function createKnockoutMatch() {
 
   if (homeId === awayId) return alert('Selecciona equipos diferentes');
 
-  const existingKO = allMatches.filter(m => m.stage === stage);
+  const existingKO = allMatches.filter((m) => m.stage === stage);
   const matchNum = existingKO.length + 1;
   const id = `KO-${stage}-${matchNum}`;
 
@@ -1081,7 +1251,7 @@ async function createKnockoutMatch() {
       home_score: null,
       away_score: null,
       result_type: 'regular',
-      played: false
+      played: false,
     });
     alert('Partido creado');
     renderAdmin();
@@ -1092,7 +1262,7 @@ async function createKnockoutMatch() {
 
 async function toggleThirdQualified(teamId, groupName, checked) {
   if (checked) {
-    const current = qualifiedThirds.filter(t => t.team_id !== teamId);
+    const current = qualifiedThirds.filter((t) => t.team_id !== teamId);
     current.push({ team_id: teamId, group_name: groupName });
     if (current.length > 8) {
       alert('Maximo 8 mejores terceros');
@@ -1101,7 +1271,9 @@ async function toggleThirdQualified(teamId, groupName, checked) {
     }
     await Store.saveQualifiedThirds(current);
   } else {
-    await Store.saveQualifiedThirds(qualifiedThirds.filter(t => t.team_id !== teamId));
+    await Store.saveQualifiedThirds(
+      qualifiedThirds.filter((t) => t.team_id !== teamId),
+    );
   }
   renderAdmin();
 }
@@ -1122,7 +1294,7 @@ async function syncResults() {
 }
 
 async function saveTopScorer(teamId) {
-  const finalMatch = allMatches.find(m => m.stage === 'final');
+  const finalMatch = allMatches.find((m) => m.stage === 'final');
   if (finalMatch) {
     finalMatch.top_scorer_team_id = teamId ? parseInt(teamId) : null;
     await Store.saveMatch(finalMatch);
@@ -1167,7 +1339,10 @@ async function fetchAndSyncResults() {
 
       // Check if we already have this result
       const existing = allMatches.find(
-        em => em.stage === 'group' && em.home_team_id === homeId && em.away_team_id === awayId
+        (em) =>
+          em.stage === 'group' &&
+          em.home_team_id === homeId &&
+          em.away_team_id === awayId,
       );
 
       if (existing && existing.played) continue; // Already recorded
@@ -1182,7 +1357,7 @@ async function fetchAndSyncResults() {
         away_score: m.score2,
         result_type: 'regular',
         played: true,
-        match_date: m.date
+        match_date: m.date,
       };
 
       await Store.saveMatch(matchObj);
@@ -1203,18 +1378,29 @@ async function fetchAndSyncResults() {
       else if (m.round && m.round.includes('Quarter')) stage = 'quarter';
       else if (m.round && m.round.includes('Semi')) stage = 'semi';
       else if (m.round && m.round.includes('third')) stage = 'third_place';
-      else if (m.round && m.round.includes('Final') && !m.round.includes('Semi') && !m.round.includes('Quarter')) stage = 'final';
+      else if (
+        m.round &&
+        m.round.includes('Final') &&
+        !m.round.includes('Semi') &&
+        !m.round.includes('Quarter')
+      )
+        stage = 'final';
 
       const matchId = `KO-${stage}-${homeId}-${awayId}`;
       const existing = allMatches.find(
-        em => em.stage === stage && em.home_team_id === homeId && em.away_team_id === awayId
+        (em) =>
+          em.stage === stage &&
+          em.home_team_id === homeId &&
+          em.away_team_id === awayId,
       );
       if (existing && existing.played) continue;
 
       // Determine result type from penalties/extra time fields
       let resultType = 'regular';
-      if (m.penalty1 !== undefined && m.penalty1 !== null) resultType = 'penalties';
-      else if (m.extra1 !== undefined && m.extra1 !== null) resultType = 'extra_time';
+      if (m.penalty1 !== undefined && m.penalty1 !== null)
+        resultType = 'penalties';
+      else if (m.extra1 !== undefined && m.extra1 !== null)
+        resultType = 'extra_time';
 
       let penaltyWinner = null;
       if (resultType === 'penalties' && m.penalty1 !== undefined) {
@@ -1232,7 +1418,7 @@ async function fetchAndSyncResults() {
         result_type: resultType,
         penalty_winner_id: penaltyWinner,
         played: true,
-        match_date: m.date
+        match_date: m.date,
       };
 
       await Store.saveMatch(matchObj);
@@ -1266,11 +1452,11 @@ async function init() {
   }
 
   // Setup nav
-  document.querySelectorAll('.nav-btn').forEach(btn => {
+  document.querySelectorAll('.nav-btn').forEach((btn) => {
     btn.addEventListener('click', () => showView(btn.dataset.view));
   });
 
-  $('login-form').addEventListener('submit', async e => {
+  $('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const groupCode = $('input-group-code').value.trim();
     const playerCode = $('input-player-code').value.trim();
@@ -1285,7 +1471,9 @@ async function init() {
         await Store.loadSelections();
         await Store.loadMatches();
         await Store.loadQualifiedThirds();
-      } catch (e) { console.warn(e); }
+      } catch (e) {
+        console.warn(e);
+      }
       showView('dashboard');
     }
   });
@@ -1299,7 +1487,9 @@ async function init() {
         await Store.loadSelections();
         await Store.loadMatches();
         await Store.loadQualifiedThirds();
-      } catch (e) { console.warn(e); }
+      } catch (e) {
+        console.warn(e);
+      }
     }
   }, 30000);
 
@@ -1312,4 +1502,3 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
-
