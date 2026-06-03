@@ -246,11 +246,13 @@ const Store = {
 
   async saveMatch(match) {
     if (sbClient) {
-      const { error } = await sbClient.from('match_results').upsert({
-        ...match,
-        group_code: CONFIG.GROUP_CODE,
-        updated_at: new Date().toISOString(),
-      });
+      const { error } = await sbClient
+        .from('match_results')
+        .upsert({
+          ...match,
+          group_code: CONFIG.GROUP_CODE,
+          updated_at: new Date().toISOString(),
+        });
       if (error) throw error;
     } else {
       const idx = allMatches.findIndex((m) => m.id === match.id);
@@ -283,18 +285,58 @@ const Store = {
         .delete()
         .eq('group_code', CONFIG.GROUP_CODE);
       if (thirds.length > 0) {
-        await sbClient.from('qualified_thirds').insert(
-          thirds.map((t) => ({
-            group_code: CONFIG.GROUP_CODE,
-            team_id: t.team_id,
-            group_name: t.group_name,
-          })),
-        );
+        await sbClient
+          .from('qualified_thirds')
+          .insert(
+            thirds.map((t) => ({
+              group_code: CONFIG.GROUP_CODE,
+              team_id: t.team_id,
+              group_name: t.group_name,
+            })),
+          );
       }
     } else {
       localStorage.setItem('porra_thirds', JSON.stringify(thirds));
     }
     qualifiedThirds = thirds;
+  },
+
+  async resetAllSelections() {
+    if (sbClient) {
+      await sbClient
+        .from('team_selections')
+        .delete()
+        .eq('group_code', CONFIG.GROUP_CODE);
+    } else {
+      localStorage.removeItem('porra_selections');
+    }
+    allSelections = [];
+  },
+
+  async resetAllMatches() {
+    if (sbClient) {
+      await sbClient
+        .from('match_results')
+        .delete()
+        .eq('group_code', CONFIG.GROUP_CODE);
+    } else {
+      localStorage.removeItem('porra_matches');
+    }
+    allMatches = [];
+  },
+
+  async resetPlayerSelections(playerCode) {
+    if (sbClient) {
+      await sbClient
+        .from('team_selections')
+        .delete()
+        .eq('group_code', CONFIG.GROUP_CODE)
+        .eq('player_code', playerCode);
+    } else {
+      allSelections = allSelections.filter((s) => s.player_code !== playerCode);
+      localStorage.setItem('porra_selections', JSON.stringify(allSelections));
+    }
+    await this.loadSelections();
   },
 };
 
@@ -1138,7 +1180,47 @@ function renderAdmin() {
       </select>
     </div>`;
 
+  // Admin reset zone
+  html += `
+    <div class="admin-section" style="border-color:var(--negative);">
+      <h3 style="color:var(--negative);">Zona de Reset</h3>
+      <p class="rule-note">Borrar selecciones de un jugador o resetear todo.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <select id="admin-reset-player">
+          ${PLAYERS.map((p) => `<option value="${p.code}">${p.avatar} ${p.name}</option>`).join('')}
+        </select>
+        <button class="btn" style="border:1px solid var(--negative);color:var(--negative);" onclick="resetPlayer()">Borrar selecciones de este jugador</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" style="border:1px solid var(--negative);color:var(--negative);" onclick="resetAllSelectionsAdmin()">Borrar TODAS las selecciones</button>
+        <button class="btn" style="border:1px solid var(--negative);color:var(--negative);" onclick="resetAllMatchesAdmin()">Borrar TODOS los partidos</button>
+      </div>
+    </div>`;
+
   container.innerHTML = html;
+}
+
+async function resetPlayer() {
+  const code = $('admin-reset-player').value;
+  const player = PLAYERS.find((p) => p.code === code);
+  if (!confirm('Borrar todas las selecciones de ' + player.name + '?')) return;
+  await Store.resetPlayerSelections(code);
+  alert('Selecciones de ' + player.name + ' borradas');
+  renderAdmin();
+}
+
+async function resetAllSelectionsAdmin() {
+  if (!confirm('BORRAR TODAS las selecciones de TODOS los jugadores?')) return;
+  await Store.resetAllSelections();
+  alert('Todas las selecciones borradas');
+  renderAdmin();
+}
+
+async function resetAllMatchesAdmin() {
+  if (!confirm('BORRAR TODOS los partidos y resultados?')) return;
+  await Store.resetAllMatches();
+  alert('Todos los partidos borrados');
+  renderAdmin();
 }
 
 function onAdminMatchSelect() {
