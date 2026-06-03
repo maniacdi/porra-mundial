@@ -82,7 +82,7 @@ let currentPlayer = null;
 let allSelections = [];
 let allMatches = [];
 let qualifiedThirds = [];
-let supabase = null;
+let sbClient = null;
 
 // ========== DATA STORE (Supabase or LocalStorage fallback) ==========
 function isSupabaseConfigured() {
@@ -93,13 +93,13 @@ function initSupabase() {
   if (!isSupabaseConfigured()) return;
   // @ts-ignore
   const { createClient } = window.supabase;
-  supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  sbClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 }
 
 const Store = {
   async loadSelections() {
-    if (supabase) {
-      const { data } = await supabase
+    if (sbClient) {
+      const { data } = await sbClient
         .from('team_selections')
         .select('*')
         .eq('group_code', CONFIG.GROUP_CODE);
@@ -112,8 +112,8 @@ const Store = {
 
   async selectTeam(playerCode, teamId) {
     const entry = { group_code: CONFIG.GROUP_CODE, player_code: playerCode, team_id: teamId };
-    if (supabase) {
-      const { error } = await supabase.from('team_selections').insert(entry);
+    if (sbClient) {
+      const { error } = await sbClient.from('team_selections').insert(entry);
       if (error) throw error;
     } else {
       allSelections.push({ ...entry, created_at: new Date().toISOString() });
@@ -123,8 +123,8 @@ const Store = {
   },
 
   async deselectTeam(playerCode, teamId) {
-    if (supabase) {
-      await supabase
+    if (sbClient) {
+      await sbClient
         .from('team_selections')
         .delete()
         .eq('group_code', CONFIG.GROUP_CODE)
@@ -140,8 +140,8 @@ const Store = {
   },
 
   async loadMatches() {
-    if (supabase) {
-      const { data } = await supabase
+    if (sbClient) {
+      const { data } = await sbClient
         .from('match_results')
         .select('*')
         .eq('group_code', CONFIG.GROUP_CODE)
@@ -154,8 +154,8 @@ const Store = {
   },
 
   async saveMatch(match) {
-    if (supabase) {
-      const { error } = await supabase
+    if (sbClient) {
+      const { error } = await sbClient
         .from('match_results')
         .upsert({ ...match, group_code: CONFIG.GROUP_CODE, updated_at: new Date().toISOString() });
       if (error) throw error;
@@ -169,8 +169,8 @@ const Store = {
   },
 
   async loadQualifiedThirds() {
-    if (supabase) {
-      const { data } = await supabase
+    if (sbClient) {
+      const { data } = await sbClient
         .from('qualified_thirds')
         .select('*')
         .eq('group_code', CONFIG.GROUP_CODE);
@@ -182,10 +182,10 @@ const Store = {
   },
 
   async saveQualifiedThirds(thirds) {
-    if (supabase) {
-      await supabase.from('qualified_thirds').delete().eq('group_code', CONFIG.GROUP_CODE);
+    if (sbClient) {
+      await sbClient.from('qualified_thirds').delete().eq('group_code', CONFIG.GROUP_CODE);
       if (thirds.length > 0) {
-        await supabase.from('qualified_thirds').insert(
+        await sbClient.from('qualified_thirds').insert(
           thirds.map(t => ({ group_code: CONFIG.GROUP_CODE, team_id: t.team_id, group_name: t.group_name }))
         );
       }
