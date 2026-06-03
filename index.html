@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Porra Mundial 2026</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+  <!-- Supabase JS (optional - remove if using localStorage only) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- HEADER -->
+  <header id="app-header">
+    <span id="header-player-name"></span>
+    <div class="header-right">
+      <span id="header-budget"></span>
+      <button id="btn-logout">Salir</button>
+    </div>
+  </header>
+
+  <!-- LOGIN VIEW -->
+  <div id="view-login" class="view active">
+    <div class="login-card">
+      <div class="login-logo">⚽</div>
+      <div class="login-title">Porra Mundial 2026</div>
+      <div class="login-subtitle">USA · Mexico · Canada</div>
+      <div id="login-error"></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label>Codigo de Grupo</label>
+          <input type="text" id="input-group-code" placeholder="Introduce el codigo del grupo" autocomplete="off" required>
+        </div>
+        <div class="form-group">
+          <label>Tu Codigo Secreto</label>
+          <input type="password" id="input-player-code" placeholder="Introduce tu codigo personal" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="view-dashboard" class="view">
+    <div id="dashboard-content"></div>
+  </div>
+
+  <!-- TEAM SELECTION VIEW -->
+  <div id="view-teams" class="view">
+    <div id="teams-content"></div>
+  </div>
+
+  <!-- MATCHES VIEW -->
+  <div id="view-matches" class="view">
+    <div id="matches-content"></div>
+  </div>
+
+  <!-- RULES VIEW -->
+  <div id="view-rules" class="view">
+    <div id="rules-content"></div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div id="view-admin" class="view">
+    <div id="admin-content"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="app-nav">
+    <button class="nav-btn" data-view="dashboard">
+      <span class="nav-icon">🏠</span>
+      <span>Inicio</span>
+    </button>
+    <button class="nav-btn" data-view="teams">
+      <span class="nav-icon">⚽</span>
+      <span>Equipos</span>
+    </button>
+    <button class="nav-btn" data-view="matches">
+      <span class="nav-icon">📊</span>
+      <span>Partidos</span>
+    </button>
+    <button class="nav-btn" data-view="rules">
+      <span class="nav-icon">📜</span>
+      <span>Reglas</span>
+    </button>
+    <button class="nav-btn" data-view="admin">
+      <span class="nav-icon">⚙️</span>
+      <span>Admin</span>
+    </button>
+  </nav>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
