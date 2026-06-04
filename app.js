@@ -17,7 +17,7 @@ const CONFIG = {
 const PLAYERS = [
   { code: 'songc', name: 'Sony', avatar: '🌮' },
   { code: 'vitorrm', name: 'RMBitor', avatar: '⚡' },
-  { code: 'cabeza950', name: 'Cabeza', avatar: '🧠' },
+  { code: 'cabeza950', name: 'Cabeza', avatar: '🫃🏼' },
   { code: 'thetoxic', name: 'Magaldi', avatar: '☠️' },
   { code: 'princess', name: 'Joosk10', avatar: '👑' },
   { code: 'Alavaro', name: 'Dwexe', avatar: '🦧' },
@@ -246,13 +246,11 @@ const Store = {
 
   async saveMatch(match) {
     if (sbClient) {
-      const { error } = await sbClient
-        .from('match_results')
-        .upsert({
-          ...match,
-          group_code: CONFIG.GROUP_CODE,
-          updated_at: new Date().toISOString(),
-        });
+      const { error } = await sbClient.from('match_results').upsert({
+        ...match,
+        group_code: CONFIG.GROUP_CODE,
+        updated_at: new Date().toISOString(),
+      });
       if (error) throw error;
     } else {
       const idx = allMatches.findIndex((m) => m.id === match.id);
@@ -285,15 +283,13 @@ const Store = {
         .delete()
         .eq('group_code', CONFIG.GROUP_CODE);
       if (thirds.length > 0) {
-        await sbClient
-          .from('qualified_thirds')
-          .insert(
-            thirds.map((t) => ({
-              group_code: CONFIG.GROUP_CODE,
-              team_id: t.team_id,
-              group_name: t.group_name,
-            })),
-          );
+        await sbClient.from('qualified_thirds').insert(
+          thirds.map((t) => ({
+            group_code: CONFIG.GROUP_CODE,
+            team_id: t.team_id,
+            group_name: t.group_name,
+          })),
+        );
       }
     } else {
       localStorage.setItem('porra_thirds', JSON.stringify(thirds));
