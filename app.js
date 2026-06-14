@@ -1401,8 +1401,9 @@ async function fetchAndSyncResults() {
 
     let synced = 0;
     for (const m of data.matches) {
-      // Only process group stage matches with scores
-      if (!m.group || m.score1 === undefined || m.score1 === null) continue;
+      if (!m.group || !m.score || !m.score.ft) continue;
+      const score1 = m.score.ft[0];
+      const score2 = m.score.ft[1];
 
       const homeId = resolveTeamId(m.team1);
       const awayId = resolveTeamId(m.team2);
@@ -1411,7 +1412,6 @@ async function fetchAndSyncResults() {
       const groupLetter = apiGroupToLetter(m.group);
       const matchId = `G-${groupLetter}-${homeId}-${awayId}`;
 
-      // Check if we already have this result
       const existing = allMatches.find(
         (em) =>
           em.stage === 'group' &&
@@ -1419,7 +1419,7 @@ async function fetchAndSyncResults() {
           em.away_team_id === awayId,
       );
 
-      if (existing && existing.played) continue; // Already recorded
+      if (existing && existing.played) continue;
 
       const matchObj = {
         id: existing ? existing.id : matchId,
@@ -1427,8 +1427,8 @@ async function fetchAndSyncResults() {
         group_name: groupLetter,
         home_team_id: homeId,
         away_team_id: awayId,
-        home_score: m.score1,
-        away_score: m.score2,
+        home_score: score1,
+        away_score: score2,
         result_type: 'regular',
         played: true,
         match_date: m.date,
@@ -1440,8 +1440,10 @@ async function fetchAndSyncResults() {
 
     // Also process knockout matches if they have scores
     for (const m of data.matches) {
-      if (m.group) continue; // Skip group matches
-      if (m.score1 === undefined || m.score1 === null) continue;
+      if (m.group) continue;
+      if (!m.score || !m.score.ft) continue;
+      const score1 = m.score.ft[0];
+      const score2 = m.score.ft[1];
 
       const homeId = resolveTeamId(m.team1);
       const awayId = resolveTeamId(m.team2);
@@ -1451,7 +1453,8 @@ async function fetchAndSyncResults() {
       if (m.round && m.round.includes('16')) stage = 'round16';
       else if (m.round && m.round.includes('Quarter')) stage = 'quarter';
       else if (m.round && m.round.includes('Semi')) stage = 'semi';
-      else if (m.round && m.round.includes('third')) stage = 'third_place';
+      else if (m.round && m.round.toLowerCase().includes('third'))
+        stage = 'third_place';
       else if (
         m.round &&
         m.round.includes('Final') &&
@@ -1469,16 +1472,13 @@ async function fetchAndSyncResults() {
       );
       if (existing && existing.played) continue;
 
-      // Determine result type from penalties/extra time fields
       let resultType = 'regular';
-      if (m.penalty1 !== undefined && m.penalty1 !== null)
-        resultType = 'penalties';
-      else if (m.extra1 !== undefined && m.extra1 !== null)
-        resultType = 'extra_time';
+      if (m.score.p) resultType = 'penalties';
+      else if (m.score.et) resultType = 'extra_time';
 
       let penaltyWinner = null;
-      if (resultType === 'penalties' && m.penalty1 !== undefined) {
-        penaltyWinner = m.penalty1 > m.penalty2 ? homeId : awayId;
+      if (resultType === 'penalties') {
+        penaltyWinner = m.score.p[0] > m.score.p[1] ? homeId : awayId;
       }
 
       const matchObj = {
@@ -1487,8 +1487,8 @@ async function fetchAndSyncResults() {
         group_name: null,
         home_team_id: homeId,
         away_team_id: awayId,
-        home_score: m.score1,
-        away_score: m.score2,
+        home_score: score1,
+        away_score: score2,
         result_type: resultType,
         penalty_winner_id: penaltyWinner,
         played: true,
