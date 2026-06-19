@@ -1411,26 +1411,26 @@ async function fetchAndSyncResults() {
       const awayId = resolveTeamId(m.team2);
       if (!homeId || !awayId) continue;
 
-      const groupLetter = apiGroupToLetter(m.group);
-      const matchId = `G-${groupLetter}-${homeId}-${awayId}`;
-
       const existing = allMatches.find(
         (em) =>
           em.stage === 'group' &&
-          em.home_team_id === homeId &&
-          em.away_team_id === awayId,
+          ((em.home_team_id === homeId && em.away_team_id === awayId) ||
+            (em.home_team_id === awayId && em.away_team_id === homeId)),
       );
 
-      if (existing && existing.played) continue;
+      if (!existing) {
+        console.warn(
+          `No se encontró partido pregenerado para ${m.team1} vs ${m.team2} (grupo ${m.group}). Pulsa "Generar partidos de grupos" primero.`,
+        );
+        continue;
+      }
+
+      if (existing.played) continue;
 
       const matchObj = {
-        id: existing ? existing.id : matchId,
-        stage: 'group',
-        group_name: groupLetter,
-        home_team_id: homeId,
-        away_team_id: awayId,
-        home_score: score1,
-        away_score: score2,
+        ...existing,
+        home_score: existing.home_team_id === homeId ? score1 : score2,
+        away_score: existing.home_team_id === homeId ? score2 : score1,
         result_type: 'regular',
         played: true,
         match_date: m.date,
@@ -1465,14 +1465,21 @@ async function fetchAndSyncResults() {
       )
         stage = 'final';
 
-      const matchId = `KO-${stage}-${homeId}-${awayId}`;
       const existing = allMatches.find(
         (em) =>
           em.stage === stage &&
-          em.home_team_id === homeId &&
-          em.away_team_id === awayId,
+          ((em.home_team_id === homeId && em.away_team_id === awayId) ||
+            (em.home_team_id === awayId && em.away_team_id === homeId)),
       );
-      if (existing && existing.played) continue;
+
+      if (!existing) {
+        console.warn(
+          `No se encontró partido eliminatoria pregenerado para ${m.team1} vs ${m.team2} (${stage}). Créalo primero en "Crear Partido Eliminatoria".`,
+        );
+        continue;
+      }
+
+      if (existing.played) continue;
 
       let resultType = 'regular';
       if (m.score.p) resultType = 'penalties';
@@ -1480,17 +1487,21 @@ async function fetchAndSyncResults() {
 
       let penaltyWinner = null;
       if (resultType === 'penalties') {
-        penaltyWinner = m.score.p[0] > m.score.p[1] ? homeId : awayId;
+        const homeIsExistingHome = existing.home_team_id === homeId;
+        penaltyWinner =
+          m.score.p[0] > m.score.p[1]
+            ? homeIsExistingHome
+              ? homeId
+              : awayId
+            : homeIsExistingHome
+              ? awayId
+              : homeId;
       }
 
       const matchObj = {
-        id: existing ? existing.id : matchId,
-        stage,
-        group_name: null,
-        home_team_id: homeId,
-        away_team_id: awayId,
-        home_score: score1,
-        away_score: score2,
+        ...existing,
+        home_score: existing.home_team_id === homeId ? score1 : score2,
+        away_score: existing.home_team_id === homeId ? score2 : score1,
         result_type: resultType,
         penalty_winner_id: penaltyWinner,
         played: true,
