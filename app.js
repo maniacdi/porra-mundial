@@ -1402,6 +1402,8 @@ async function fetchAndSyncResults() {
     const data = await resp.json();
 
     let synced = 0;
+
+    // ---- GROUP STAGE ----
     for (const m of data.matches) {
       if (!m.group || !m.score || !m.score.ft) continue;
       const score1 = m.score.ft[0];
@@ -1409,7 +1411,12 @@ async function fetchAndSyncResults() {
 
       const homeId = resolveTeamId(m.team1);
       const awayId = resolveTeamId(m.team2);
-      if (!homeId || !awayId) continue;
+      if (!homeId || !awayId) {
+        console.warn(
+          `No se pudo resolver equipo: ${m.team1} (${homeId}) vs ${m.team2} (${awayId})`,
+        );
+        continue;
+      }
 
       const existing = allMatches.find(
         (em) =>
@@ -1427,10 +1434,11 @@ async function fetchAndSyncResults() {
 
       if (existing.played) continue;
 
+      const sameOrder = existing.home_team_id === homeId;
       const matchObj = {
         ...existing,
-        home_score: existing.home_team_id === homeId ? score1 : score2,
-        away_score: existing.home_team_id === homeId ? score2 : score1,
+        home_score: sameOrder ? score1 : score2,
+        away_score: sameOrder ? score2 : score1,
         result_type: 'regular',
         played: true,
         match_date: m.date,
@@ -1440,7 +1448,7 @@ async function fetchAndSyncResults() {
       synced++;
     }
 
-    // Also process knockout matches if they have scores
+    // ---- KNOCKOUT STAGE ----
     for (const m of data.matches) {
       if (m.group) continue;
       if (!m.score || !m.score.ft) continue;
@@ -1481,27 +1489,28 @@ async function fetchAndSyncResults() {
 
       if (existing.played) continue;
 
+      const sameOrder = existing.home_team_id === homeId;
+
       let resultType = 'regular';
       if (m.score.p) resultType = 'penalties';
       else if (m.score.et) resultType = 'extra_time';
 
       let penaltyWinner = null;
       if (resultType === 'penalties') {
-        const homeIsExistingHome = existing.home_team_id === homeId;
-        penaltyWinner =
-          m.score.p[0] > m.score.p[1]
-            ? homeIsExistingHome
-              ? homeId
-              : awayId
-            : homeIsExistingHome
-              ? awayId
-              : homeId;
+        const homeWonPens = m.score.p[0] > m.score.p[1];
+        penaltyWinner = sameOrder
+          ? homeWonPens
+            ? homeId
+            : awayId
+          : homeWonPens
+            ? awayId
+            : homeId;
       }
 
       const matchObj = {
         ...existing,
-        home_score: existing.home_team_id === homeId ? score1 : score2,
-        away_score: existing.home_team_id === homeId ? score2 : score1,
+        home_score: sameOrder ? score1 : score2,
+        away_score: sameOrder ? score2 : score1,
         result_type: resultType,
         penalty_winner_id: penaltyWinner,
         played: true,
