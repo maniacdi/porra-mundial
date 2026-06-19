@@ -102,6 +102,8 @@ const API_NAME_MAP = {
   Switzerland: 16,
   Qatar: 39,
   'Bosnia and Herzegovina': 27,
+  'Bosnia & Herzegovina': 27,
+  Bosnia: 27,
   Bosnia: 27,
   Brazil: 4,
   Morocco: 14,
